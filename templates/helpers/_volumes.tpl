@@ -19,7 +19,7 @@
 - name: {{ .name }}
   secret:
     {{- with .originalName }}
-    secretName: {{ . }}
+    secretName: {{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
     {{- else }}
     secretName: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
     {{- end }}
