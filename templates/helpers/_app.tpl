@@ -46,7 +46,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{- define "helpers.app.genericSelectorLabels" -}}
 {{- with .Values.generic.extraSelectorLabels }}
-{{ include "helpers.tplvalues.render" (dict "value" . "context" .) }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
 {{- end }}
 {{- end }}
 
