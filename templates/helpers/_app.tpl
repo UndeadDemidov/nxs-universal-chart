@@ -41,12 +41,12 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- define "helpers.app.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "helpers.app.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- include "helpers.app.genericSelectorLabels" $ }}
+{{ include "helpers.app.genericSelectorLabels" $ }}
 {{- end }}
 
 {{- define "helpers.app.genericSelectorLabels" -}}
 {{- with .Values.generic.extraSelectorLabels }}
-{{- include "helpers.tplvalues.render" (dict "value" . "context" .) }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
 {{- end }}
 {{- end }}
 
@@ -56,8 +56,30 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 {{- end }}
 
+{{/*
+For a backward compatibility
+TODO: remove it in version 3.x.x, use defaultHookAnnotations
+*/}}
 {{- define "helpers.app.hooksAnnotations" -}}
-helm.sh/hook: "pre-install,pre-upgrade"
-helm.sh/hook-weight: "-999"
-helm.sh/hook-delete-policy: before-hook-creation
+{{ include "helpers.app.defaultHookAnnotations" .context | fromYaml }}
 {{- end }}
+
+{{/*
+Template for default hook annotations for configmaps and secrets
+*/}}
+{{- define "helpers.app.defaultHookAnnotations" -}}
+{{- with .Values.generic.hookAnnotations }}
+{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) }}
+{{- end }}
+{{- end }}
+
+{{/*
+Merge the user defined annotations and the common hook annotations
+*/}}
+{{- define "helpers.app.annotations" -}}
+{{- $defaultHookValues := include "helpers.app.defaultHookAnnotations" .context | fromYaml }}
+{{- $genericAnnotations := include "helpers.app.genericAnnotations" .context | fromYaml }}
+{{- $userValues := .value | fromYaml }}
+{{- $mergedValues := mustMergeOverwrite  $defaultHookValues $userValues $genericAnnotations }}
+{{- $mergedValues | toYaml -}}
+{{- end -}}

@@ -1,7 +1,7 @@
-{{- range $name, $sm := .Values.serviceMonitors }}
+{{- range $name, $sm := .Values.vmServiceScrapes }}
 ---
-kind: ServiceMonitor
-apiVersion: monitoring.coreos.com/v1
+kind: VMServiceScrape
+apiVersion: operator.victoriametrics.com/v1beta1
 metadata:
   name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
   namespace: {{ $.Release.Namespace | quote }}
@@ -14,13 +14,20 @@ spec:
   selector:
     matchLabels:
       {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
+      {{- with $.Values.generic.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end -}}
       {{- with .extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end -}}
+  {{- with .sampleLimit }}
+  sampleLimit: {{ . }}
+  {{- end }}
+  {{- with .streamParse }}
+  streamParse: {{ . }}
+  {{- end }}
 {{- end }}
 
-{{- range $name, $sm := .Values.servicemonitors }}
+{{- range $name, $sm := .Values.vmservicescrapes }}
 ---
-kind: ServiceMonitor
-apiVersion: monitoring.coreos.com/v1
+kind: VMServiceScrape
+apiVersion: operator.victoriametrics.com/v1beta1
 metadata:
   name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
   namespace: {{ $.Release.Namespace | quote }}
@@ -33,5 +40,12 @@ spec:
   selector:
     matchLabels:
       {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
+      {{- with $.Values.generic.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end -}}
       {{- with .extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end -}}
-{{- end }}
+  {{- with .sampleLimit }}
+  sampleLimit: {{ . }}
+  {{- end }}
+  {{- with .streamParse }}
+  streamParse: {{ . }}
+  {{- end }}
+{{- end }} 

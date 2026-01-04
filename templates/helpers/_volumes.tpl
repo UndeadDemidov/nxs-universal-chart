@@ -9,6 +9,9 @@
     {{- else }}
     name: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
     {{- end }}
+    {{- with .defaultMode }}
+    defaultMode: {{ . }}
+    {{- end }}
     {{- with .items }}
     items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 4 }}
     {{- end }}
@@ -16,7 +19,7 @@
 - name: {{ .name }}
   secret:
     {{- with .originalName }}
-    secretName: {{ . }}
+    secretName: {{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
     {{- else }}
     secretName: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
     {{- end }}

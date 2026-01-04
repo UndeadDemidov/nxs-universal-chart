@@ -4,6 +4,18 @@ generic:
   #  general-label: general-label-value
   annotations: {}
   #  general-annotation: general-annotation-value
+  hookAnnotations: {}
+    #helm.sh/hook: "pre-install,pre-upgrade"
+    # helm.sh/hook-weight: "-999"
+    # helm.sh/hook-delete-policy: before-hook-creation
+    # helm.sh/resource-policy: keep
+  # default annotation that will be added to configmaps and secrets
+  # docs: https://helm.sh/docs/topics/charts_hooks/
+  # necessary this default hooks if it used in other hooks, see a note
+  # https://github.com/helm/helm/issues/2622#issuecomment-526519546
+  # but the resources with hooks currently not tracked or managed as part of the release
+  # i.e. configmap with helm-hooks will not removed when release has removed
+  # https://helm.sh/docs/topics/charts_hooks/#hook-resources-are-not-managed-with-corresponding-releases
   extraSelectorLabels: {}
   #  label: special
   podLabels: {}
@@ -75,7 +87,7 @@ imagePullSecrets: {}
 #  registry.org-rw: b64:eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
 
 diagnosticMode:
-  enbled: false
+  enabled: false
   command: ["sleep"]
   args: ["infinity"]
 
@@ -246,6 +258,13 @@ secrets: {}
   #      "arg": "value"
   #    }
 
+sealedSecrets: {}
+  # test:
+  #   encryptedData:
+  #     foo: Yy3LvlaCgEWV50VrNY4Aow/X
+  #     bar: |-
+  #       fjVmoxIulUKX5IAserbCpw/Y
+
 configMaps: {}
   #some-cm:
   #  labels:
@@ -322,6 +341,19 @@ serviceMonitors: {}
 #    labels:
 #      foo: foo
 
+vmServiceScrapes: {}
+#  app-vms:
+#    endpoints:
+#    - interval: 30s
+#      port: exporter
+#      path: /metrics
+#    extraSelectorLabels:
+#      app: nginx
+#    labels:
+#      foo: foo
+#    sampleLimit: 1000
+#    streamParse: true
+
 extraDeploy: {}
 #  net-pol: |-
 #    apiVersion: networking.k8s.io/v1
@@ -361,3 +393,253 @@ extraDeploy: {}
 
 
 
+ingressroutes: {}
+  # test: 
+  #   entryPoints: 
+  #     - test
+  #   routes:
+  #     Host(`prod-vault.ru`):
+  #       priority: 10
+  #       services:
+  #         vault-active:
+  #           port: 8200
+  #           serversTransport: vault
+  #           responseForwardingflushInterval: 10ms
+  #           stickyCookie: 
+  #             httpOnly: true
+  #             name: cookie
+  #             secure: true
+  #             sameSite: none
+  #             maxAge: 42
+  #         vault-active-2:
+  #           port: 8201
+  #           serversTransport: vault
+  #           responseForwardingflushInterval: 10ms
+  #           stickyCookie: 
+  #             httpOnly: false
+  #             name: cookie-2
+  #             secure: false
+  #             sameSite: none
+  #             maxAge: 42
+  #           weight: 12
+  #           passHostHeader: true
+  #       middlewares:
+  #       - name: middleware1
+  #         namespace: default
+  #       - name: test
+  #   tls:
+  #     secretName: supersecret 
+  #     store:
+  #       name: storetets
+  #       namespace: default
+  #     options:
+  #       name: opt
+  #       namespace: default
+  #     certResolver: foo 
+  #     domains:
+  #     - main: example.net
+  #       sans:
+  #       - a.example.net
+  #       - b.example.net
+
+middlewares: {}
+  # testmdw:
+  #   ipWhiteList:
+  #     sourceRange:
+  #     - 192.144.48.8
+  #     - 192.144.48.9
+  #     - 10.220.250.247
+  # test-2:
+  #   redirectScheme:
+  #     permanent: true
+  #     scheme: https
+
+ingressroutesUDP: {}
+  # test: 
+  #   entryPoints: 
+  #     - test
+  #   routes:
+  #     vault-active:
+  #       port: 8200
+  #     vault-passive:
+  #       port: 8201
+  #       weight: 12
+
+traefikservices: {}
+  # test:
+  #   mirroring:
+  #     name: svc1
+  #     port: 80
+  #     mirrors:
+  #       - name: svc2
+  #         port: 80
+  #         percent: 20
+  #       - name: svc3 
+  #         kind: TraefikService
+  #         percent: 15
+  # test2:
+  #   weighted:
+  #     services:
+  #       - name: whoami1
+  #         kind: Service
+  #         port: 80
+  #         weight: 1
+  #         sticky:
+  #           cookie:
+  #             name: lvl2
+  #       - name: whoami2
+  #         kind: Service
+  #         weight: 1
+  #         port: 80
+  #         sticky:
+  #           cookie:
+  #             name: lvl2
+  #     sticky:
+  #       cookie:
+  #         name: lvl1
+
+TLSOptions: {}
+  # testopt:
+  #   minVersion: VersionTLS12
+  #   maxVersion: VersionTLS13
+  #   curvePreferences:
+  #   - CurveP521
+  #   - CurveP384
+  #   cipherSuites:
+  #   - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+  #   - TLS_RSA_WITH_AES_256_GCM_SHA384
+  #   clientAuth:
+  #     secretNames:
+  #     - secret-ca1
+  #     - secret-ca2
+  #     clientAuthType: VerifyClientCertIfGiven
+  #   sniStrict: true
+  #   alpnProtocols:
+  #   - foobar
+ 
+TLSStores: {}
+  # teststore:
+  #   certificates:
+  #     - foo                      
+  #     - bar
+  #   defaultCertificate: secret
+  #   defaultGeneratedCert:
+  #     resolver: myresolver
+  #     domain:
+  #       main: example.org
+  #       sans:
+  #       - foo.example.org
+  #       - bar.example.org
+
+
+ServersTransport: {}
+  # test: 
+  #   serverName: foobar
+  #   insecureSkipVerify: true 
+  #   rootCAsSecrets:
+  #     - foobar
+  #     - foobar
+  #   certificatesSecrets:
+  #     - foobar
+  #     - foobar
+  #   maxIdleConnsPerHost: 1
+  #   forwardingTimeouts:
+  #     dialTimeout: 42s
+  #     responseHeaderTimeout: 42s
+  #     idleConnTimeout: 42s
+  #   peerCertURI: foobar
+  #   disableHTTP2: true
+  #   spiffe:
+  #     ids:
+  #     - spiffe://trust-domain/id1
+  #     - spiffe://trust-domain/id2
+  #     trustDomain: "spiffe://trust-domain"
+
+ServersTransportTCP: {}
+  # testtc:
+  #   dialTimeout: 42s
+  #   dialKeepAlive: 42s
+  #   terminationDelay: 42s
+  #   tls:
+  #     serverName: foobar
+  #     insecureSkipVerify: true
+  #     peerCertURI: foobar
+  #     rootCAsSecrets:
+  #       - foobar
+  #       - foobar
+  #     certificatesSecrets:
+  #       - foobar
+  #       - foobar
+  #   spiffe:
+  #     ids:
+  #     - spiffe://trust-domain/id1
+  #     - spiffe://trust-domain/id2
+  #     trustDomain: "spiffe://trust-domain"
+
+istiogateways: {}
+  # nginx:
+  #   name: nginx-gateway
+  #   selector:
+  #     istio: ingress
+  #   servers:
+  #     - port:
+  #         number: 80
+  #         name: http
+  #         protocol: HTTP
+  #       hosts:
+  #         - "nginx.example.com"
+
+istiovirtualservices: {}
+  # nginx:
+  #   name: nginx-virtualservice
+  #   gateways:
+  #     - nginx-gateway
+  #   hosts:
+  #     - "nginx.example.com"
+  #   http:
+  #     - match:
+  #         - uri:
+  #             prefix: "/"
+  #       route:
+  #         - destination:
+  #             host: nginx-service.default.svc.cluster.local
+  #             port:
+  #               number: 80
+
+istiodestinationrules: {}
+  # nginx:
+  #   name: nginx-destinationrule
+  #   host: "nginx-service.default.svc.cluster.local"
+  #   trafficPolicy:
+  #     loadBalancer:
+  #       simple: ROUND_ROBIN
+  #     connectionPool:
+  #       http:
+  #         http1MaxPendingRequests: 500
+  #         maxRequestsPerConnection: 50
+  #     outlierDetection:
+  #       consecutiveGatewayErrors: 3
+  #       interval: 5s
+  #       baseEjectionTime: 15s
+  #   subsets:
+  #     - name: v1
+  #       labels:
+  #         app: nginx
+  #       trafficPolicy:
+  #         loadBalancer:
+  #           simple: LEAST_CONN
+  #         connectionPool:
+  #           tcp:
+  #             maxConnections: 200
+  #     - name: v2
+  #       labels:
+  #         version: v2
+  #       trafficPolicy:
+  #         loadBalancer:
+  #           simple: RANDOM
+  #         connectionPool:
+  #           http:
+  #             http2MaxRequests: 2000
+  #   exportTo:
+  #     - "."
+  #     - "another-namespace"

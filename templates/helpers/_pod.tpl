@@ -39,9 +39,13 @@ dnsPolicy: {{ $.Values.generic.dnsPolicy }}
 {{- with .nodeSelector }}
 nodeSelector: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
 {{- end }}
-{{- with .tolerations }}
-tolerations: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
+
+{{- $combined := .tolerations | default ( $.Values.generic.tolerations | default list ) }}
+{{- if $combined }}
+tolerations:
+  {{- include "helpers.tplvalues.render" (dict "value" $combined "context" $) | nindent 2 }}
 {{- end }}
+
 {{- with .securityContext }}
 securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
 {{- end }}
@@ -86,8 +90,8 @@ initContainers:
   command: {{- include "helpers.tplvalues.render" ( dict "value" .command "context" $) | nindent 2 }}
   {{- end }}
   {{- end }}
-  {{- include "helpers.workloads.envs" (dict "value" . "context" $) | indent 2 }}
-  {{- include "helpers.workloads.envsFrom" (dict "value" . "context" $) | indent 2 }}
+  {{- include "helpers.workloads.envs" (dict "value" . "general" $general "context" $) | indent 2 }}
+  {{- include "helpers.workloads.envsFrom" (dict "value" . "general" $general "context" $) | indent 2 }}
   {{- with .ports }}
   ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 2 }}
   {{- end }}

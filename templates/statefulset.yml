@@ -15,12 +15,13 @@ metadata:
     {{- include "helpers.app.genericAnnotations" $ | indent 4 }}
     {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
-  replicas: {{ .replicas | default 1 }}
+  replicas: {{ dig "replicas" (dig "replicas" 1 $general) $sts | int }}
   {{- with .strategy }}
   strategy: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
   serviceName: {{ include "helpers.app.fullname" (dict "name" .serviceName "context" $) }}
   {{- with .minReadySeconds }}minReadySeconds: {{ . }}{{- end }}
+  {{ with .podManagementPolicy }}podManagementPolicy: {{ . }}{{- end }}
   selector:
     matchLabels:
       {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
